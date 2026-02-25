@@ -14,21 +14,36 @@ jobs:
       - name: Set timezone to Beijing
         run: sudo timedatectl set-timezone Asia/Shanghai
 
-      - name: Show current directory
+      - name: Debug workspace
         run: |
-          pwd
-          ls
+          echo "PWD=$(pwd)"
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+          ls -la
+          find . -maxdepth 3 -type d -name src -print
 
-      - name: List src directory
-        run: ls src
+      - name: Locate repo root (where src exists)
+        id: loc
+        run: |
+          set -e
+          if [ -d "src" ]; then
+            echo "ROOT=." >> $GITHUB_OUTPUT
+          elif [ -d "lianghua/src" ]; then
+            echo "ROOT=lianghua" >> $GITHUB_OUTPUT
+          else
+            echo "Cannot find src directory!" >&2
+            echo "Current tree:" >&2
+            find . -maxdepth 3 -print >&2
+            exit 1
+          fi
+          echo "Detected ROOT=$(cat $GITHUB_OUTPUT | tail -n1)"
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install pandas numpy requests textblob
+        run: pip install -U pip && pip install pandas numpy requests textblob
 
       - name: Run sentiment script
-        run: python src/phase2_sentiment_gdelt.py
+        run: python ${{ steps.loc.outputs.ROOT }}/src/phase2_sentiment_gdelt.py
