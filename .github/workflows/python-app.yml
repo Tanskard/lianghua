@@ -25,7 +25,7 @@ jobs:
 
       - name: Run sentiment script
         run: |
-          python src/phase2_sentiment_gdelt_trading_days.py
+          python src/phase2_sentiment_gdelt.py
 
       - name: Commit updated data
         run: |
