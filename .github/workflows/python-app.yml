@@ -1,0 +1,34 @@
+name: HUATAI Data Pipeline (Beijing Time)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-data-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set timezone to Beijing
+        run: sudo timedatectl set-timezone Asia/Shanghai
+
+      - name: Show current directory
+        run: |
+          pwd
+          ls
+
+      - name: List src directory
+        run: ls src
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pandas numpy requests textblob
+
+      - name: Run sentiment script
+        run: python src/phase2_sentiment_gdelt.py
